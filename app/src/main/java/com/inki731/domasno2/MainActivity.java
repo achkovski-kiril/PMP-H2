@@ -144,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements WordAdapter.OnWor
 
     @Override
     public void onWordDelete(int position, String word) {
-        // Ask for confirmation before deleting
         new AlertDialog.Builder(this)
                 .setTitle("Delete Word")
                 .setMessage("Are you sure you want to delete this word?")

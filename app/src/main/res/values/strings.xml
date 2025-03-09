@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Domasno2</string>
+    <string name="search_macedonian_word">Search Macedonian word</string>
+    <string name="search_english_word">Search English word</string>
+    <string name="add_word">Add Word</string>
+    <string name="enter_macedonian_word">Enter Macedonian word</string>
+    <string name="enter_english_translation">Enter English translation</string>
+    <string name="add_word_ac">Add Word</string>
+</resources>

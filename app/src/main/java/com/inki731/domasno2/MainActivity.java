@@ -5,19 +5,21 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements WordAdapter.OnWordDeleteListener {
 
     private Button addButton;
     private ListView wordListView;
@@ -26,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private File wordFile;
     private EditText searchMacedonian;
     private EditText searchEnglish;
-    private ArrayAdapter<String> adapter;
+    private WordAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         allWords = new ArrayList<>();
         filteredWords = new ArrayList<>();
 
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, filteredWords);
+        adapter = new WordAdapter(this, filteredWords, this);
         wordListView.setAdapter(adapter);
 
         loadWords();
@@ -129,14 +131,44 @@ public class MainActivity extends AppCompatActivity {
                     allWords.add(line.trim());
                 }
             }
-
             filteredWords.clear();
             filteredWords.addAll(allWords);
+
             adapter.notifyDataSetChanged();
 
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "Error loading words", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onWordDelete(int position, String word) {
+        // Ask for confirmation before deleting
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Word")
+                .setMessage("Are you sure you want to delete this word?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    filteredWords.remove(position);
+                    allWords.remove(word);
+                    adapter.notifyDataSetChanged();
+
+                    saveWordsToFile();
+
+                    Toast.makeText(MainActivity.this, "Word deleted", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    private void saveWordsToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(wordFile, false))) {
+            for (String word : allWords) {
+                writer.write(word);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error saving changes", Toast.LENGTH_SHORT).show();
         }
     }
 }
